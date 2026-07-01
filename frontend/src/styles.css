@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #1a1a1a;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #ffffff;
+}
+
+button,
+input,
+a {
+  border-radius: 0;
+}
+
+button,
+a {
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+::selection {
+  background: #800020;
+  color: #ffffff;
+}
+
+/* ── 15px chess-grid background ─────────────────────────────────────────────
+   Two 45° gradient layers combine to produce a mathematically exact
+   alternating white / #f5f5f5 checkerboard. Each cell is 15×15px.
+   background-size: 30px (2 cells) so the repeat tiles perfectly.
+   background-position: offsets the second layer by exactly one cell.
+   ───────────────────────────────────────────────────────────────────────── */
+.chess-grid-bg {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(45deg, #f5f5f5 25%, transparent 25%, transparent 75%, #f5f5f5 75%, #f5f5f5),
+    linear-gradient(45deg, #f5f5f5 25%, #ffffff 25%, #ffffff 75%, #f5f5f5 75%, #f5f5f5);
+  background-size: calc(var(--sq, 60px) * 2) calc(var(--sq, 60px) * 2);
+  background-position: 0 0, var(--sq, 60px) var(--sq, 60px);
+}

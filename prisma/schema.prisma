@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TournamentType {
+  BULLET
+  BLITZ
+  RAPID
+}
+
+enum TournamentStatus {
+  UPCOMING
+  ACTIVE
+  FINISHED
+}
+
+enum MatchResult {
+  PENDING
+  WHITE_WIN
+  BLACK_WIN
+  DRAW
+  FORFEIT
+}
+
+enum MatchStatus {
+  SCHEDULED
+  PLAYING
+  COMPLETED
+}
+
+enum ParticipantStatus {
+  ACTIVE
+  ELIMINATED
+  WINNER
+}
+
+model User {
+  id              String   @id @default(uuid()) @db.Uuid
+  lichessUsername String   @unique
+  lichessAccessToken String?
+  rating          Int
+  bulletRating    Int?
+  blitzRating     Int?
+  rapidRating     Int?
+  isBot           Boolean  @default(false)
+  isAdmin         Boolean  @default(false)
+  bio             String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  whiteMatches Match[] @relation("WhitePlayer")
+  blackMatches Match[] @relation("BlackPlayer")
+  tournamentParticipants TournamentParticipant[]
+  tournamentByes TournamentBye[]
+  wonTournaments Tournament[] @relation("TournamentWinner")
+
+  @@index([lichessUsername])
+}
+
+model Tournament {
+  id               String           @id @default(uuid()) @db.Uuid
+  slug             String?          @unique
+  name             String
+  type             TournamentType
+  status           TournamentStatus @default(UPCOMING)
+  currentRound     Int              @default(0)
+  maxRounds        Int              @default(11)
+  roundStartedAt   DateTime?
+  registrationClosesAt DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  winnerId         String?          @db.Uuid
+
+  matches Match[]
+  participants TournamentParticipant[]
+  byes TournamentBye[]
+  winner User? @relation("TournamentWinner", fields: [winnerId], references: [id], onDelete: SetNull)
+  chatMessages ChatMessage[]
+
+  @@index([type, status])
+}
+
+model TournamentParticipant {
+  id           String            @id @default(uuid()) @db.Uuid
+  tournamentId String            @db.Uuid
+  userId       String            @db.Uuid
+  lives        Float             @default(3)
+  points       Float             @default(0)
+  status       ParticipantStatus @default(ACTIVE)
+  hasReceivedBye Boolean         @default(false)
+  checkedIn      Boolean         @default(false)
+  consecutiveForfeits Int        @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, userId])
+  @@index([tournamentId, status, lives])
+  @@index([userId])
+}
+
+model TournamentBye {
+  id           String   @id @default(uuid()) @db.Uuid
+  tournamentId String   @db.Uuid
+  userId       String   @db.Uuid
+  round        Int
+  createdAt    DateTime @default(now())
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, round])
+  @@index([userId])
+}
+
+model Match {
+  id             String      @id @default(uuid()) @db.Uuid
+  tournamentId   String      @db.Uuid
+  round          Int
+  whitePlayerId  String      @db.Uuid
+  blackPlayerId  String      @db.Uuid
+  lichessGameId  String?
+  lichessChallengeUrl String?
+  lichessWhiteUrl String?
+  lichessBlackUrl String?
+  forfeitedPlayerId String?   @db.Uuid
+  whiteJoined    Boolean     @default(false)
+  blackJoined    Boolean     @default(false)
+  result         MatchResult @default(PENDING)
+  status         MatchStatus @default(SCHEDULED)
+  processedAt    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  tournament  Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  whitePlayer User       @relation("WhitePlayer", fields: [whitePlayerId], references: [id], onDelete: Restrict)
+  blackPlayer User       @relation("BlackPlayer", fields: [blackPlayerId], references: [id], onDelete: Restrict)
+
+  @@index([tournamentId, round])
+  @@index([whitePlayerId])
+  @@index([blackPlayerId])
+  @@unique([tournamentId, round, whitePlayerId, blackPlayerId])
+}
+
+model ChatMessage {
+  id           String      @id @default(uuid()) @db.Uuid
+  tournamentId String?     @db.Uuid
+  username     String
+  message      String
+  createdAt    DateTime    @default(now())
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@index([tournamentId, createdAt])
+}

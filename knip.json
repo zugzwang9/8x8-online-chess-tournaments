@@ -1,0 +1,4 @@
+{
+  "ignore": ["frontend/**"],
+  "ignoreBinaries": ["npm.cmd"]
+}
