@@ -1,8 +1,8 @@
 import { app } from "./app";
 import { env } from "./config/env";
 import { prisma } from "./config/prisma";
-import { startScheduler, stopScheduler } from "./services/schedulerService";
-import { initChat } from "./services/chatService";
+import { startScheduler, stopScheduler } from "./features/tournament/scheduler.service";
+import { initChat } from "./features/chat/chat.service";
 
 // Initializes the HTTP server, loads chat history, and starts the background scheduler.
 const server = app.listen(env.port, () => {

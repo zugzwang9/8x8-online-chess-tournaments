@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { verifySessionToken } from "../services/tokenService";
+import { verifySessionToken } from "../features/auth/token.service";
 import { HttpError } from "../utils/httpError";
 
 export const requireAuth = (req: Request, _res: Response, next: NextFunction): void => {

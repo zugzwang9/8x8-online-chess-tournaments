@@ -1,4 +1,4 @@
-import type { JwtSessionPayload } from "../services/tokenService";
+import type { JwtSessionPayload } from "../features/auth/token.service";
 
 declare global {
   namespace Express {

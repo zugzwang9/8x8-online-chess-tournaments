@@ -5,9 +5,9 @@ import { Navigation, type Page } from "./components/Navigation";
 import { ChessPieceBackground } from "./components/ChessPieceBackground";
 import { AboutPage } from "./pages/AboutPage";
 import { HomePage } from "./pages/HomePage";
-import { ProfilePage } from "./pages/ProfilePage";
-import { TournamentsPage } from "./pages/TournamentsPage";
-import { LeaderboardPage } from "./pages/LeaderboardPage";
+import { ProfilePage } from "./features/user/pages/ProfilePage";
+import { TournamentsPage } from "./features/tournament/pages/TournamentsPage";
+import { LeaderboardPage } from "./features/leaderboard/pages/LeaderboardPage";
 import { findActiveTournament } from "./utils/schedule";
 import type { Tournament, User } from "./types";
 

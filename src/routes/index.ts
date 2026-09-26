@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { adminRoutes } from "./adminRoutes";
-import { authRoutes } from "./authRoutes";
-import { chatRoutes } from "./chatRoutes";
-import { healthRoutes } from "./healthRoutes";
-import { lichessWebhookRoutes } from "./lichessWebhookRoutes";
-import { matchRoutes } from "./matchRoutes";
-import { tournamentRoutes } from "./tournamentRoutes";
-import { userRoutes } from "./userRoutes";
-import { leaderboardRoutes } from "./leaderboardRoutes";
+import { adminRoutes } from "../features/admin/admin.routes";
+import { authRoutes } from "../features/auth/auth.routes";
+import { chatRoutes } from "../features/chat/chat.routes";
+import { healthRoutes } from "../features/health/health.routes";
+import { lichessWebhookRoutes } from "../features/match/lichessWebhook.routes";
+import { matchRoutes } from "../features/match/match.routes";
+import { tournamentRoutes } from "../features/tournament/tournament.routes";
+import { userRoutes } from "../features/user/user.routes";
+import { leaderboardRoutes } from "../features/leaderboard/leaderboard.routes";
 
 export const routes = Router();
 
