@@ -30,14 +30,12 @@ const StatRow = ({ label, value }: { label: string; value: string | number }) =>
   </tr>
 );
 
-// Main Profile Component
 
 export function ProfilePage({ user, username, onLogout }: ProfilePageProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Bio editing
   const [editingBio, setEditingBio] = useState(false);
   const [bioInput, setBioInput] = useState("");
   const [bioSaving, setBioSaving] = useState(false);
@@ -46,7 +44,6 @@ export function ProfilePage({ user, username, onLogout }: ProfilePageProps) {
 
   const isOwnProfile = user?.lichessUsername?.toLowerCase() === username.toLowerCase();
 
-  // Fetch profile
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -60,7 +57,6 @@ export function ProfilePage({ user, username, onLogout }: ProfilePageProps) {
       .finally(() => setLoading(false));
   }, [username]);
 
-  // Focus textarea when edit opens
   useEffect(() => {
     if (editingBio) bioRef.current?.focus();
   }, [editingBio]);
@@ -82,7 +78,6 @@ export function ProfilePage({ user, username, onLogout }: ProfilePageProps) {
     }
   };
 
-  // Loading and Error states
 
   if (loading) {
     return (
@@ -106,7 +101,6 @@ export function ProfilePage({ user, username, onLogout }: ProfilePageProps) {
 
   const { user: p, stats, recentMatches } = profile;
 
-  // Profile View Layout
 
   return (
     <section className="mx-auto max-w-[1440px] px-5 py-12 pb-24 md:px-8">

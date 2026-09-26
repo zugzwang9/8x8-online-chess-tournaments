@@ -19,7 +19,6 @@ export const tournamentRoutes = Router();
 
 tournamentRoutes.get("/", asyncHandler(listTournaments));
 tournamentRoutes.post("/", requireAdmin, asyncHandler(createTournament));
-// Return the next upcoming tournament (used by frontend to find the scheduled Sunday event)
 tournamentRoutes.get("/upcoming", asyncHandler(getUpcomingTournament));
 tournamentRoutes.get("/:id", asyncHandler(getTournamentLive));
 tournamentRoutes.post("/:id/join", requireAuth, asyncHandler(joinTournament));

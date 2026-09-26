@@ -3,7 +3,6 @@ import { prisma } from "../../config/prisma";
 import { HttpError } from "../../utils/httpError";
 import { z } from "zod";
 
-// Handles fetching the public user profile, including aggregated tournament and match statistics.
 export const getUserProfile = async (req: Request, res: Response): Promise<void> => {
   const username = String(req.params.username);
 
@@ -147,7 +146,6 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
   });
 };
 
-// Handles authenticated requests to update the user's profile biography.
 export const updateBio = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) throw new HttpError(401, "Not authenticated.");
 

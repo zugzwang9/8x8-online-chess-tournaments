@@ -142,11 +142,9 @@ const applyServerFailureDraw = async (match: StaleMatch, now: Date): Promise<voi
   });
 };
 
-// Internal helpers
 /** Finalises the tournament when maxRounds is reached. */
 const finaliseTournament = async (tournamentId: string): Promise<void> => {
   await prisma.$transaction(async (tx) => {
-    // Crown survivors
     await tx.tournamentParticipant.updateMany({
       where: {
         tournamentId,
@@ -156,7 +154,6 @@ const finaliseTournament = async (tournamentId: string): Promise<void> => {
       data: { status: ParticipantStatus.WINNER }
     });
 
-    // Find the top survivor for the legacy `winnerId` field (highest points, then lives)
     const topSurvivor = await tx.tournamentParticipant.findFirst({
       where: { tournamentId, status: ParticipantStatus.WINNER },
       orderBy: [{ points: "desc" }, { lives: "desc" }, { createdAt: "asc" }]
@@ -178,7 +175,6 @@ const finaliseTournament = async (tournamentId: string): Promise<void> => {
 
 /** Advances the tournament to the next round. */
 const advanceRound = async (tournamentId: string): Promise<void> => {
-  // Eliminate anyone at 0 lives who is still marked ACTIVE
   await prisma.tournamentParticipant.updateMany({
     where: { tournamentId, status: ParticipantStatus.ACTIVE, lives: { lte: 0 } },
     data: { status: ParticipantStatus.ELIMINATED }
@@ -193,7 +189,6 @@ const advanceRound = async (tournamentId: string): Promise<void> => {
   });
 
   if (survivors < 2) {
-    // Edge-case: only 0 or 1 player left — finalise early
     console.log(`[supervisor] Only ${survivors} survivor(s) left — ending tournament early.`);
     await finaliseTournament(tournamentId);
     return;
@@ -224,7 +219,6 @@ export const evaluateRoundStatus = async (tournamentId: string): Promise<void> =
     return;
   }
 
-  // Are there any matches in this round that are still in progress?
   const openMatches = await prisma.match.count({
     where: {
       tournamentId,
@@ -238,7 +232,6 @@ export const evaluateRoundStatus = async (tournamentId: string): Promise<void> =
     return;
   }
 
-  // All matches are done. Acquire the per-tournament lock before advancing.
   if (advancingRound.get(tournamentId)) {
     console.log(
       `[supervisor] Round advancement already in progress for tournament ${tournamentId}. Skipping duplicate call.`
@@ -286,7 +279,6 @@ export const enforceRoundTimeouts = async (): Promise<void> => {
   const now = new Date();
   const cutoff = new Date(now.getTime() - ROUND_TIMEOUT_MS);
 
-  // Find active tournaments whose round started before the cutoff
   const staleTournaments = await prisma.tournament.findMany({
     where: {
       status: TournamentStatus.ACTIVE,
@@ -365,7 +357,6 @@ export const enforceRoundTimeouts = async (): Promise<void> => {
       }
     }
 
-    // After processing all stale matches, check if the round is fully done.
     try {
       await evaluateRoundStatus(tournament.id);
     } catch (err) {

@@ -363,13 +363,11 @@ export const startTournament = async (req: Request, res: Response): Promise<void
   }
 
   await prisma.$transaction(async (tx) => {
-    // Auto check-in the admin who is starting the tournament
     await tx.tournamentParticipant.updateMany({
       where: { tournamentId, userId },
       data: { checkedIn: true }
     });
 
-    // Purge all no-shows before starting
     await tx.tournamentParticipant.deleteMany({
       where: { tournamentId, checkedIn: false }
     });
@@ -413,7 +411,6 @@ export const stopTournament = async (req: Request, res: Response): Promise<void>
   }
 
   await prisma.$transaction(async (tx) => {
-    // Reset the tournament row in a single update
     await tx.tournament.update({
       where: { id: tournamentId },
       data: {
@@ -424,11 +421,9 @@ export const stopTournament = async (req: Request, res: Response): Promise<void>
       }
     });
 
-    // Delete all generated match and bye records
     await tx.match.deleteMany({ where: { tournamentId } });
     await tx.tournamentBye.deleteMany({ where: { tournamentId } });
 
-    // Restore every participant to their initial state (including WINNER → ACTIVE)
     await tx.tournamentParticipant.updateMany({
       where: { tournamentId },
       data: {

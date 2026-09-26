@@ -53,7 +53,6 @@ function App() {
     
     window.addEventListener("hashchange", handleHashChange);
     
-    // Initial sync
     if (window.location.hash) {
       handleHashChange();
     } else if (page) {

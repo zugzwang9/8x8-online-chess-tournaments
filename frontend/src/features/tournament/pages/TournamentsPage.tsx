@@ -139,7 +139,6 @@ export function TournamentsPage({
       const target = tournamentStartDate;
       setCountdownText(formatCountdown(target));
       
-      // Check-in opens exactly 60 minutes before start
       const msUntilStart = target.getTime() - Date.now();
       const sixtyMinsMs = 60 * 60 * 1000;
       setIsCheckInOpen(msUntilStart > 0 && msUntilStart <= sixtyMinsMs);
@@ -150,7 +149,6 @@ export function TournamentsPage({
     return () => window.clearInterval(interval);
   }, [tournamentStartDate]);
 
-  // 15-minute round countdown (resets when live data round changes)
   useEffect(() => {
     if (!live || live.tournament.status !== "ACTIVE") {
       setRoundTimerText(null);
@@ -179,7 +177,6 @@ export function TournamentsPage({
     return () => window.clearInterval(interval);
   }, [live?.tournament.roundStartedAt, live?.tournament.status]);
 
-  // Show match-start modal when user has a PLAYING match in the current round
   useEffect(() => {
     if (!live || !user) return;
     const currentRound = live.tournament.currentRound;
@@ -200,7 +197,6 @@ export function TournamentsPage({
     }
   }, [live?.tournament.currentRound, user]);
 
-  // Eliminated modal: fires once when the user's standing hits 0 lives.
   // Uses a ref rather than state so toggling it never causes a re-render loop.
   const eliminatedShownForTournament = useRef<string | null>(null);
   useEffect(() => {
@@ -218,7 +214,6 @@ export function TournamentsPage({
     }
   }, [live?.standings, live?.tournament.status]);
 
-  // Tournament-finished modal: fires for everyone when status becomes FINISHED.
   const finishedShownForTournament = useRef<string | null>(null);
   useEffect(() => {
     if (!live) return;

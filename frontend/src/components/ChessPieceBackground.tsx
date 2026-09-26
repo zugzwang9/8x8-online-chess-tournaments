@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 
-// Compute squareSize: nearest integer divisor of viewport width close to target
 const computeSquareSize = (viewportWidth: number, target = 60): number => {
   const cols = Math.round(viewportWidth / target);
   return viewportWidth / cols;

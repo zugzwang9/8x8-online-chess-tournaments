@@ -20,24 +20,19 @@ export function MatchTable({
   maxRounds = 11,
   currentUser
 }: MatchTableProps) {
-  // viewedRound: which round the user is browsing (defaults to live round)
   const [viewedRound, setViewedRound] = useState<number>(currentRound);
 
-  // Auto-advance viewedRound when the live round increments
   useEffect(() => {
     setViewedRound(currentRound);
   }, [currentRound]);
 
-  // Extracts and sorts all available round numbers.
   const availableRounds = Array.from(
     new Set(allMatches.map((m) => m.round))
   ).sort((a, b) => a - b);
 
-  // Filters matches for the currently viewed round.
   const isHistorical = viewedRound < currentRound;
   const roundMatches = allMatches.filter((m) => m.round === viewedRound);
 
-  // Sorts the matches, prioritizing the user's live match.
   const userMatch =
     !isHistorical && currentUser
       ? roundMatches.find(
@@ -51,7 +46,6 @@ export function MatchTable({
     .filter((m) => m.id !== userMatch?.id)
     .slice(0, VISIBLE_OTHER_BOARDS);
 
-  // Configures the visible matches based on historical or live view.
   const visibleMatches = isHistorical
     ? roundMatches
     : userMatch

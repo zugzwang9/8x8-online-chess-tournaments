@@ -66,7 +66,6 @@ export const api = {
   joinMatchCheck: async (matchId: string) =>
     request<{ ok: boolean }>(`/matches/${matchId}/join-check`, { method: "POST" }),
 
-  // Admin endpoints
   seedTestPlayers: async (tournamentId: string) =>
     request<{ seeded: string[]; message: string }>(
       `/admin/tournaments/${tournamentId}/seed-test-players`,
@@ -83,7 +82,6 @@ export const api = {
       { method: "POST" }
     ),
 
-  // User profile endpoints
   getUserProfile: async (username: string) =>
     request<UserProfile>(`/users/${username}`),
   updateBio: async (bio: string) =>
