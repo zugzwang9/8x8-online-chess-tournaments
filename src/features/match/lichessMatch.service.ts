@@ -3,6 +3,7 @@ import { MatchResult, MatchStatus, ParticipantStatus, TournamentType } from "@pr
 import { env } from "../../config/env";
 import { prisma } from "../../config/prisma";
 import { HttpError } from "../../utils/httpError";
+import { decrypt } from "../../utils/encryption";
 
 type GameType = "BULLET" | "BLITZ" | "RAPID";
 
@@ -139,7 +140,7 @@ export const attachLichessGamesToMatches = async (matchIds: string[]): Promise<v
         match.whitePlayer.lichessUsername,
         match.blackPlayer.lichessUsername,
         match.tournament.type as TournamentType,
-        match.whitePlayer.lichessAccessToken
+        match.whitePlayer.lichessAccessToken ? decrypt(match.whitePlayer.lichessAccessToken) : null
       );
 
       await prisma.match.update({

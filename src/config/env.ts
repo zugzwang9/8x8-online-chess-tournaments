@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const requiredEnv = ["DATABASE_URL", "JWT_SECRET", "LICHESS_CLIENT_ID", "LICHESS_REDIRECT_URI"] as const;
+const requiredEnv = ["DATABASE_URL", "JWT_SECRET", "LICHESS_CLIENT_ID", "LICHESS_REDIRECT_URI", "ENCRYPTION_KEY"] as const;
 
 for (const key of requiredEnv) {
   if (!process.env[key]) {
@@ -13,7 +13,8 @@ for (const key of requiredEnv) {
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: Number(process.env.PORT ?? 4000),
-  corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+  corsOrigin: process.env.CORS_ORIGIN ?? "http://localhost:5176",
+  encryptionKey: process.env.ENCRYPTION_KEY as string,
   jwtSecret: process.env.JWT_SECRET as string,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? "7d",
   lichessClientId: process.env.LICHESS_CLIENT_ID as string,

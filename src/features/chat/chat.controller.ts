@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { HttpError } from "../../utils/httpError";
 import { getMessages, addMessage, isRateLimited } from "./chat.service";
+import { z } from "zod";
 
 export const getChat = async (req: Request, res: Response): Promise<void> => {
   const tournamentId = req.query.tournamentId as string;
@@ -17,18 +18,16 @@ export const sendChat = async (req: Request, res: Response): Promise<void> => {
     throw new HttpError(429, "Please wait a few seconds before sending another message.");
   }
 
-  const { message, tournamentId } = req.body;
+  const parsed = z.object({
+    message: z.string().trim().min(1, "Message cannot be empty."),
+    tournamentId: z.string().uuid("tournamentId must be a valid UUID")
+  }).safeParse(req.body);
 
-  if (!tournamentId) throw new HttpError(400, "tournamentId is required");
-
-  if (typeof message !== "string") {
-    throw new HttpError(400, "Message must be a string.");
+  if (!parsed.success) {
+    throw new HttpError(400, parsed.error.issues[0].message);
   }
 
-  const trimmed = message.trim();
-  if (!trimmed) {
-    throw new HttpError(400, "Message cannot be empty.");
-  }
+  const { message: trimmed, tournamentId } = parsed.data;
 
   if (trimmed.length > 300) {
     throw new HttpError(400, "Message cannot exceed 300 characters.");

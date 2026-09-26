@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../../config/prisma";
 import { HttpError } from "../../utils/httpError";
+import { z } from "zod";
 
 // Handles fetching the public user profile, including aggregated tournament and match statistics.
 export const getUserProfile = async (req: Request, res: Response): Promise<void> => {
@@ -150,7 +151,15 @@ export const getUserProfile = async (req: Request, res: Response): Promise<void>
 export const updateBio = async (req: Request, res: Response): Promise<void> => {
   if (!req.user) throw new HttpError(401, "Not authenticated.");
 
-  const bio = typeof req.body.bio === "string" ? req.body.bio.trim().slice(0, 500) : "";
+  const parsed = z.object({
+    bio: z.string().trim().max(500).optional().default("")
+  }).safeParse(req.body);
+
+  if (!parsed.success) {
+    throw new HttpError(400, parsed.error.issues[0].message);
+  }
+
+  const bio = parsed.data.bio;
 
   const updated = await prisma.user.update({
     where: { id: req.user.sub },

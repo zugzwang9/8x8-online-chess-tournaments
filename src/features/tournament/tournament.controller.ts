@@ -6,6 +6,7 @@ import { calculateGladiatorStandings } from "../leaderboard/standings.service";
 import { evaluateRoundStatus } from "./tournamentSupervisor.service";
 import { assertCanCreateLichessGames, attachLichessGamesToMatches } from "../match/lichessMatch.service";
 import { HttpError } from "../../utils/httpError";
+import { z } from "zod";
 
 const getAuthenticatedUserId = (req: Request): string => {
   if (!req.user) {
@@ -74,13 +75,6 @@ const findTournamentByIdOrSlug = async (
   });
 };
 
-const parseTournamentType = (type: unknown): TournamentType => {
-  if (typeof type !== "string" || !(type in TournamentType)) {
-    throw new HttpError(400, "Tournament type must be one of BULLET, BLITZ or RAPID.");
-  }
-
-  return TournamentType[type as keyof typeof TournamentType];
-};
 
 export const checkInTournament = async (req: Request, res: Response): Promise<void> => {
   const userId = getAuthenticatedUserId(req);
@@ -115,19 +109,18 @@ export const checkInTournament = async (req: Request, res: Response): Promise<vo
 export const createTournament = async (req: Request, res: Response): Promise<void> => {
   getAuthenticatedUserId(req);
 
-  const name = typeof req.body.name === "string" ? req.body.name.trim() : "";
-  if (!name) {
-    throw new HttpError(400, "Tournament name is required.");
+  const parsedBody = z.object({
+    name: z.string().trim().min(1, "Tournament name is required."),
+    type: z.enum(["BULLET", "BLITZ", "RAPID"]),
+    registrationClosesAt: z.string().datetime().optional()
+  }).safeParse(req.body);
+
+  if (!parsedBody.success) {
+    throw new HttpError(400, parsedBody.error.issues[0].message);
   }
 
-  // allow optional registrationClosesAt in request body, else default to next Sunday 19:00
-  let registrationClosesAt: Date | null = null;
-  if (req.body.registrationClosesAt) {
-    const parsed = new Date(req.body.registrationClosesAt);
-    if (!isNaN(parsed.getTime())) {
-      registrationClosesAt = parsed;
-    }
-  }
+  const { name, type } = parsedBody.data;
+  let registrationClosesAt: Date | null = parsedBody.data.registrationClosesAt ? new Date(parsedBody.data.registrationClosesAt) : null;
 
   if (!registrationClosesAt) {
     // Use UTC arithmetic to match tournamentProvisionerService (17:00 UTC = tournament start time).
@@ -149,7 +142,7 @@ export const createTournament = async (req: Request, res: Response): Promise<voi
     data: {
       name,
       slug: normalizeSlug(name),
-      type: parseTournamentType(req.body.type),
+      type: type,
       status: TournamentStatus.UPCOMING,
       currentRound: 0,
       registrationClosesAt

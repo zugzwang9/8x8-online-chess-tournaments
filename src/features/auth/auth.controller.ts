@@ -4,6 +4,7 @@ import { getLichessAuthUrl, getLichessProfile, getLichessToken } from "./auth.se
 import { signSessionToken } from "./token.service";
 import { env } from "../../config/env";
 import { HttpError } from "../../utils/httpError";
+import { encrypt } from "../../utils/encryption";
 
 export const lichessLogin = async (_req: Request, res: Response): Promise<void> => {
   res.redirect(getLichessAuthUrl());
@@ -26,14 +27,14 @@ export const lichessCallback = async (req: Request, res: Response): Promise<void
     },
     create: {
       lichessUsername: profile.lichessUsername,
-      lichessAccessToken,
+      lichessAccessToken: encrypt(lichessAccessToken),
       rating: profile.rating,
       bulletRating: profile.bulletRating,
       blitzRating: profile.blitzRating,
       rapidRating: profile.rapidRating
     },
     update: {
-      lichessAccessToken,
+      lichessAccessToken: encrypt(lichessAccessToken),
       rating: profile.rating,
       bulletRating: profile.bulletRating,
       blitzRating: profile.blitzRating,

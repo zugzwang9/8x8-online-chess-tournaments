@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { verifySessionToken } from "../features/auth/token.service";
 import { HttpError } from "../utils/httpError";
+import { prisma } from "../config/prisma";
 
 export const requireAuth = (req: Request, _res: Response, next: NextFunction): void => {
   let token = "";
@@ -41,7 +42,6 @@ export const requireAdmin = (req: Request, _res: Response, next: NextFunction): 
       return;
     }
     try {
-      const { prisma } = await import("../config/prisma");
       const user = await prisma.user.findUnique({
         where: { id: req.user!.sub },
         select: { isAdmin: true }
